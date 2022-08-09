@@ -140,16 +140,18 @@ void array::construct(initializer_list<float> il)
 float* array::sum_dim_x()
 {
      float *result =new float();
-        if (num >4)
+        if (num >=4)
         {
             __m128 res = _mm_set_ps1(0.f);
             __m128 temp;
             float *res_ptr;
+            res_ptr = new float[4];
             
-            for (int i=0;i<num;i+=4)
+            for (int i=0;i<num-4;i+=4)
             {
                 temp =_mm_load_ps(nums+i);
                 res = _mm_add_ps(res,temp);
+                // cout<<i<<endl;
             }
             _mm_store1_ps(res_ptr,res);
 
@@ -159,12 +161,24 @@ float* array::sum_dim_x()
             }
 
         }
-        for (int i=(num/4)*4;i<num;i++)*result += nums[i];
+        for (int i=((num)/4)*4;i<num;i++)*result += nums[i];
         return result;
 }
 float* array::sum_dim_0()
 {
     float * result = new float[shape[1]]();
+    if (shape[1]<4)
+    {
+        for (int i=0;i<shape[1];i++)
+        {
+            for (int j=0;j<shape[0];j++)
+            {
+                result[i]+=nums[j*shape[1]+i];
+            }
+        }
+
+        return result;
+    }
     for (int j=0;j<shape[1];j+=4)
     {
         __m128 res = _mm_set_ps1(0.f);
@@ -204,14 +218,14 @@ float* array::sum_dim_1()
     }
     return result;
 }
-float* array::sum(int dim )
+float* array::sum(int dim)
 {
-    if (dim =-1)
+    if (dim ==-1)
     {
          return sum_dim_x();
     }
 
-    else if (dim =0)
+    else if (dim ==0)
     {
         if (len_shape ==1) return sum_dim_x();
         return sum_dim_0();
@@ -229,9 +243,11 @@ float* array::sum(int dim )
 // }
 void array::put_out()
 {
-    for(int i=0;i<num;i++)
+    for(int i=0;i<shape[1];i++)
     {
-        cout<<nums[i]<<" ";
+        for (int j=0;j<shape[0];j++)cout<<nums[i*shape[0]+j]<<" ";
+        cout<<endl;
+    
     }
 }
  array::~ array()
@@ -243,8 +259,8 @@ int main()
 {
     array nu={2,2};
     nu.construct({1,2,3,4});
-    nu*=2;
-    cout<<nu.len()<<endl;
-    nu.put_out();
+    float *a = new float[4];
+    a = nu.sum(1);
+    cout<<a[1]<<endl;
     return 0;
 }
