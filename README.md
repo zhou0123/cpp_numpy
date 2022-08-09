@@ -1,2 +1,2 @@
 # cpp_numpy
-simd openmp 科学计算
+simd openmp cpp 科学计算

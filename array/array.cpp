@@ -6,8 +6,6 @@ int len(T &array)
 {
     return  sizeof(array)/(array[0]);
 }
-
-
 class  array
 {
 private:
@@ -15,16 +13,36 @@ private:
     int num{0};//元素个数
     float *nums;//储存元素
     int len_shape;//shape的len
-    float dim_x ();
-    float* dim_0();
+    float* sum_dim_x ();
+    float* sum_dim_0();
+    float* sum_dim_1();
 public:
      array(int dim,...);
     ~ array();
 
     void construct(...);
-    float sum(int dim =-1);
+    float *sum(int dim =-1);
     int len();
 
+    array &operator+=(float x)
+    {
+        #pragma omp simd
+        for (int i=0;i<num;i++)
+        {
+            nums[i]+=x;
+        }
+
+        return *this;
+    }
+    array &operator+ (float x)
+    {
+        #pragma omp simd 
+        for(int i=0;i<num;i++)
+        {
+            nums[i]+=x;
+        }
+        return *this;
+    }
 };
 int array::len()
 {
@@ -54,9 +72,9 @@ void array::construct(...)
         nums[i] = va_arg(ap,float);
     }
 }
-float array::dim_x()
+float* array::sum_dim_x()
 {
-     float result =0;
+     float *result =new float();
         if (num >4)
         {
             __m128 res = _mm_set_ps1(0.f);
@@ -72,17 +90,16 @@ float array::dim_x()
 
             for (int i=0;i<4;i++)
             {
-                result += res[i];
+                *result += res[i];
             }
 
         }
-        for (int i=(num/4)*4;i<num;i++)result += nums[i];
+        for (int i=(num/4)*4;i<num;i++)*result += nums[i];
         return result;
 }
-float* array::dim_0()
+float* array::sum_dim_0()
 {
     float * result = new float[shape[1]]();
-   
     for (int j=0;j<shape[1];j+=4)
     {
         __m128 res = _mm_set_ps1(0.f);
@@ -97,31 +114,55 @@ float* array::dim_0()
         res  = _mm_add_ps(res,temp);
         _mm_stream_ps(result+4*j,res);
     }
-    
+    int j =(shape[1]/4)*4;
     for (int i=0;i<shape[0]-1;i++)
     {
-        for (int j=(shape[1]/4)*4;j<shape[1];j++)
+        _mm_prefetch(nums+j+shape[1]*(i+1),_MM_HINT_ET0);
+        for ( j;j<shape[1];j++)
         {
-            _mm_prefetch(nums+j+shape[1]*(i+1),_MM_HINT_ET0);
+            result[j] += nums[j];
         }
-        
     }
-    
+    return result;
 }
-float array::sum(int dim =-1)
+float* array::sum_dim_1()
+{
+    float * result = new float[shape[0]]();
+
+    for (int i=0;i<shape[0];i++)
+    {
+        #pragma omp simd
+        for (int j=0;j<shape[1];j++)
+        {
+            result[i]+=nums[shape[0]*i+j];
+        }
+    }
+    return result;
+}
+float* array::sum(int dim =-1)
 {
     if (dim =-1)
     {
-         return dim_x();
+         return sum_dim_x();
     }
 
     else if (dim =0)
     {
-        if (len_shape ==1) dim_x();
-
+        if (len_shape ==1) return sum_dim_x();
+        return sum_dim_0();
+    }
+    else
+    {
+        if (len_shape==1) return sum_dim_x();
+        return sum_dim_1();
     }
     
 }
+float* dot(array& other)
+{
+    
+}
+
  array::~ array()
 {
 }
