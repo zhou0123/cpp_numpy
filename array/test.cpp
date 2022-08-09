@@ -1,25 +1,34 @@
-/* --sum.cpp-- 可变参数宏实现求任意个整形值得和 */
-#include <stdarg.h>
-#include<iostream>
-int sum(int count, ...);   
+ #include<initializer_list>
+ #include<iostream>
+ using namespace std;
+ double sum(initializer_list<double> il)
+ {
+     double sum=0;
+     for(auto tmp : il) sum+=tmp;
+     return sum;
+ }
+ 
+ double average(const initializer_list<double> &ril)
+ {
+     if(ril.size()>0)
+     {
+         double sum=0;
+         for(auto tmp : ril) sum+=tmp;
+         return sum/ril.size();
+     }
+     return 0.0;
+ }
 
-int sum(int count, ...){    
-    va_list ap;
-    va_start(ap, count);
-
-    int sum = 0;  
-    for(int i = 0; i < count; i++)          
-        sum += va_arg(ap, int); 
-
-    va_end(ap);         
-    return sum;
-}
-
-int main()
-{
-    int res = (sum(3,1,2,3));
-    std::cout<<res<<std::endl;
-
-    return 0;
-
-}
+//  int main()
+//  {
+//      cout << "sum:" << sum({2,3,4})
+//          << ", ave:" << average({2.0,3,4}) << endl;
+//      initializer_list<double> dl={1.5,2.5,3.5,4.5,5.5};
+//      cout << "sum:" << sum(dl)
+//          << ", ave:" << average(dl) << endl;
+//      dl={1,2,3,4,5,6};
+//      cout << "sum:" << sum(dl)
+//          << ", ave:" << average(dl) << endl;
+//  }
+ 
+ 

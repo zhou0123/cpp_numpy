@@ -1,6 +1,10 @@
 
 #include <stdarg.h>
 #include <immintrin.h>
+#include<iostream>
+ #include<initializer_list>
+using namespace std;
+
 template <class T>
 int len(T &array)
 {
@@ -17,10 +21,10 @@ private:
     float* sum_dim_0();
     float* sum_dim_1();
 public:
-     array(int dim,...);
+     array(initializer_list<int> il);
     ~ array();
-
-    void construct(...);
+    void put_out();
+    void construct(initializer_list<float> il);
     float *sum(int dim =-1);
     int len();
 
@@ -43,33 +47,94 @@ public:
         }
         return *this;
     }
+    array &operator-=(float x)
+    {
+        #pragma omp simd
+        for (int i=0;i<num;i++)
+        {
+            nums[i]-=x;
+        }
+
+        return *this;
+
+    }
+    array &operator -(float x)
+    {
+        #pragma omp simd 
+        for(int i=0;i<num;i++)
+        {
+            nums[i]-=x;
+        }
+        return *this;
+    }
+    array &operator*=(float x)
+    {
+        #pragma omp simd
+        for (int i=0;i<num;i++)
+        {
+            nums[i]*=x;
+        }
+
+        return *this;
+
+    }
+    array &operator *(float x)
+    {
+        #pragma omp simd 
+        for(int i=0;i<num;i++)
+        {
+            nums[i]*=x;
+        }
+        return *this;
+    }
+    array &operator/=(float x)
+    {
+        #pragma omp simd
+        for (int i=0;i<num;i++)
+        {
+            nums[i]-=x;
+        }
+
+        return *this;
+
+    }
+    array &operator /(float x)
+    {
+        #pragma omp simd 
+        for(int i=0;i<num;i++)
+        {
+            nums[i]-=x;
+        }
+        return *this;
+    }
 };
 int array::len()
 {
     return len_shape;
 }
- array:: array(int dim,...)
+ array:: array(initializer_list<int> il)
 {
-    shape = new int(dim);
-    len_shape =dim;
-    va_list ap;
-    va_start(ap, dim);
-
-    for (int i=0;i<dim;i++)
+    int size_ = il.size();
+    shape = new int[size_];
+    len_shape =size_;
+    int i=0;
+    for (auto tmp = il.begin();tmp!=il.end();tmp++)
     {
-        shape[i] = va_arg(ap,int);
-        num +=va_arg(ap,int);
+        shape[i] = *tmp;
+        i++;
     }
 }
-void array::construct(...)
+void array::construct(initializer_list<float> il)
 {
-    nums = new float(num);
-    va_list ap;
-    va_start(ap, num);
-
-    for (int i=0;i<num;i++)
+    
+    nums = new float[il.size()];
+    int i=0;
+    #pragma omp simd
+    for (auto tmp = il.begin();tmp!=il.end();tmp++)
     {
-        nums[i] = va_arg(ap,float);
+        nums[i] =*tmp;
+        i++;
+        num+=1;
     }
 }
 float* array::sum_dim_x()
@@ -139,7 +204,7 @@ float* array::sum_dim_1()
     }
     return result;
 }
-float* array::sum(int dim =-1)
+float* array::sum(int dim )
 {
     if (dim =-1)
     {
@@ -158,12 +223,28 @@ float* array::sum(int dim =-1)
     }
     
 }
-float* dot(array& other)
-{
+// float* dot(array& other)
+// {
     
+// }
+void array::put_out()
+{
+    for(int i=0;i<num;i++)
+    {
+        cout<<nums[i]<<" ";
+    }
 }
-
  array::~ array()
 {
 }
 
+
+int main()
+{
+    array nu={2,2};
+    nu.construct({1,2,3,4});
+    nu*=2;
+    cout<<nu.len()<<endl;
+    nu.put_out();
+    return 0;
+}
