@@ -1,1 +1,0 @@
-通过simd，openmp，用cpp构建在cpp中的numpy，实现科学计算
