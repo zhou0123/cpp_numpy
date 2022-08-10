@@ -8,24 +8,20 @@
 #include<thread>
 using namespace std;
 
+
 template <class T>
-int len(T &array)
-{
-    return  sizeof(array)/(array[0]);
-}
 class  ndarray
 {
 
 private:
     int num{0};//元素个数
-    int len_shape;//shape的len
     float* sum_dim_x ();
     float* sum_dim_0();
     float* sum_dim_1();
 public:
     int *shape;
     float *nums;//储存元素
-     ndarray(initializer_list<int> il);
+     ndarray(initializer_list<initializer_list<T>> il);
     ~ ndarray();
     void put_out();
     void construct(initializer_list<float> il);
@@ -127,23 +123,16 @@ public:
             
 
             int loc = *il.begin();
-            if (len_shape ==1) 
+           
+            float* res =new float[shape[1]];
+            #pragma omp simd
+            for (int i=0;i<shape[1];i++)
             {
-                float* res =new float[size_];
-                res[0] = nums[loc];
-                return res;
+                res[i] = nums[i+loc*shape[1]];
             }
-            else if (len_shape ==2)
-            {
-                float* res =new float[shape[1]];
-                #pragma omp simd
-                for (int i=0;i<shape[1];i++)
-                {
-                    res[i] = nums[i+loc*shape[1]];
-                }
 
-                return res;
-            }
+            return res;
+            
         }
         else if(size_ ==2)
         {
@@ -167,36 +156,33 @@ public:
         } 
     }
 };
-int ndarray::len()
+template<typename T>
+int ndarray <T>::len()
 {
-    return len_shape;
+    return shape[0];
 }
- ndarray:: ndarray(initializer_list<int> il)
+template<typename T>
+ ndarray<T>:: ndarray(initializer_list<initializer_list<T>> il)
 {
-    int size_ = il.size();
-    shape = new int[size_];
-    len_shape =size_;
-    int i=0;
-    for (auto tmp = il.begin();tmp!=il.end();tmp++)
-    {
-        shape[i] = *tmp;
-        i++;
-    }
-}
-void ndarray::construct(initializer_list<float> il)
-{
+    shape = new int[2]();
+    shape[0] = il.size();
+    shape[1] = *(il.begin()).size();
+    nums = new T[shape[0]*shape[1]];
     
-    nums = new float[il.size()];
-    int i=0;
-    #pragma omp simd
-    for (auto tmp = il.begin();tmp!=il.end();tmp++)
+    int i=0,j=0;
+    for (auto itor2 = il.begin();itor2!=il.end();itor2++)
     {
-        nums[i] =*tmp;
+        for (auot itor1 = (*itor2).begin();itor1!=(*itor2).end();itor1++)
+        {
+            nums[j+i*shape[0]] = *itor1;
+            j++;
+        }
         i++;
-        num+=1;
     }
 }
-float* ndarray::sum_dim_x()
+
+template<typename T>
+float* ndarray<T>::sum_dim_x()
 {
      float *result =new float();
         if (num >=4)
@@ -223,7 +209,8 @@ float* ndarray::sum_dim_x()
         for (int i=((num)/4)*4;i<num;i++)*result += nums[i];
         return result;
 }
-float* ndarray::sum_dim_0()
+template<typename T>
+float* ndarray<T>::sum_dim_0()
 {
     float * result = new float[shape[1]]();
     if (shape[1]<4)
@@ -263,7 +250,8 @@ float* ndarray::sum_dim_0()
     }
     return result;
 }
-float* ndarray::sum_dim_1()
+template<typename T>
+float* ndarray<T>::sum_dim_1()
 {
     float * result = new float[shape[0]]();
 
@@ -277,7 +265,8 @@ float* ndarray::sum_dim_1()
     }
     return result;
 }
-float* ndarray::sum(int dim)
+template<typename T>
+float* ndarray<T>::sum(int dim)
 {
     if (dim ==-1)
     {
@@ -286,17 +275,16 @@ float* ndarray::sum(int dim)
 
     else if (dim ==0)
     {
-        if (len_shape ==1) return sum_dim_x();
         return sum_dim_0();
     }
     else
     {
-        if (len_shape==1) return sum_dim_x();
         return sum_dim_1();
     }
     
 }
-void ndarray::dot(ndarray& other)
+template<typename T>
+void ndarray<T>::dot(ndarray& other)
 {
     int * other_shape;
     other_shape = other.shape;
@@ -311,12 +299,6 @@ void ndarray::dot(ndarray& other)
     int remain = other_shape[1]%8;
     for (int num_thread=0;num_thread<8;num_thread++)
     {
-        // if (remain!=0)
-        // {
-        //     int start =num_thread*base_size;
-        //     int end = (num_thread+1)*base_size+1;
-        //     remain--;
-        // }
         workers[num_thread] = std::thread(
             [&]{
                 
@@ -357,7 +339,8 @@ void ndarray::dot(ndarray& other)
         }
     }
 }
-void ndarray::put_out()
+template<typename T>
+void ndarray<T>::put_out()
 {
     for(int i=0;i<shape[1];i++)
     {
@@ -366,10 +349,12 @@ void ndarray::put_out()
     
     }
 }
- ndarray::~ ndarray()
+template<typename T>
+ ndarray<T>::~ ndarray()
 {
 }
-void ndarray::transpose()
+template<typename T>
+void ndarray<T>::transpose()
 {
     float * nums_ = new float[num];
     #pragma omp parallal for 
@@ -389,10 +374,10 @@ void ndarray::transpose()
 }
 int main()
 {
-    ndarray nu={2,2};
-    nu.construct({1,2,3,4});
-    float *a = new float[4];
-    a = nu.sum(1);
-    cout<<a[1]<<endl;
-    return 0;
+    // ndarray nu={2,2};
+    // nu.construct({1,2,3,4});
+    // float *a = new float[4];
+    // a = nu.sum(1);
+    // cout<<a[1]<<endl;
+    // return 0;
 }
