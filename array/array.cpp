@@ -7,12 +7,9 @@
 #include <sched.h>
 #include<thread>
 using namespace std;
-
-
 template <class T>
 class  ndarray
 {
-
 private:
     int num{0};//元素个数
     float* sum_dim_x ();
@@ -290,7 +287,6 @@ void ndarray<T>::dot(ndarray& other)
     other_shape = other.shape;
     int num_tmp = shape[0]*other_shape[1];
     float* res = new float[num_tmp]();
-
     #pragma omp simd
     int core_num =8;
     std::thread workers[8];
@@ -320,7 +316,6 @@ void ndarray<T>::dot(ndarray& other)
         int rc = pthread_setaffinity_np(workers[num_thread].native_handle(), sizeof(cpu_set_t), &cpuset);
     }
     for (auto & worker : workers) worker.join();
-
     if (remain !=0)
     {
         #pragma omp parallal num_threads(remain)
@@ -374,10 +369,9 @@ void ndarray<T>::transpose()
 }
 int main()
 {
-    // ndarray nu={2,2};
-    // nu.construct({1,2,3,4});
-    // float *a = new float[4];
-    // a = nu.sum(1);
-    // cout<<a[1]<<endl;
-    // return 0;
+    auto arr = ndarray({{1,2,3},{1,2,3}});
+
+    arr.put_out();
+    
+    return 1;
 }

@@ -61,6 +61,7 @@
         "__split_buffer": "cpp",
         "__locale": "cpp",
         "__tuple": "cpp",
-        "version": "cpp"
+        "version": "cpp",
+        "__config": "cpp"
     }
 }

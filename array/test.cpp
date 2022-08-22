@@ -1,7 +1,7 @@
- #include<initializer_list>
- #include<iostream>
- #include<thread>
- using namespace std;
+//  #include<initializer_list>
+//  #include<iostream>
+//  #include<thread>
+//  using namespace std;
 // int main()
 // {
 //     int count =0;
