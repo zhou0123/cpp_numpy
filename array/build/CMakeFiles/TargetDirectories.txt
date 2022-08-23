@@ -1,0 +1,3 @@
+/home/zcy/numpy_cpp/array/build/CMakeFiles/main.dir
+/home/zcy/numpy_cpp/array/build/CMakeFiles/edit_cache.dir
+/home/zcy/numpy_cpp/array/build/CMakeFiles/rebuild_cache.dir

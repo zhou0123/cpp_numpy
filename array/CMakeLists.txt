@@ -1,10 +1,13 @@
-add_library(array STATIC array.cpp)
-
-
+# add_library(array STATIC array.cpp)
+# set(CMAKE_BUILD_TYPE Release)
+# find_library(OpenMP REQUIRED)
+# target_include_directories(array PUBLIC .)
+# target_link_libraries(array PUBLIC OpenMP::OpenMP_CXX)
+# target_compile_options(array PUBLIC -ffast-math -march=native)
+cmake_minimum_required(VERSION 3.12)
+project(numpy LANGUAGES CXX)
 set(CMAKE_BUILD_TYPE Release)
-
 find_library(OpenMP REQUIRED)
-target_include_directories(array PUBLIC .)
-
+add_executable(main Matrix_operations.cpp)
 target_link_libraries(array PUBLIC OpenMP::OpenMP_CXX)
-target_compile_options(array PUBLIC -ffast-math -march=native)
+target_compile_options(main PUBLIC -ffast-math -march=native)
